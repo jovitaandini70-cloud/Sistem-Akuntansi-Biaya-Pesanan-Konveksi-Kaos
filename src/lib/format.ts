@@ -27,7 +27,12 @@ export const totalOverhead = (o: JobOrder) =>
 export const totalProduksi = (o: JobOrder) =>
   totalMaterial(o) + totalLabor(o) + totalOverhead(o);
 
-export const estimasiLaba = (o: JobOrder) => o.hargaJual - totalProduksi(o);
+// hargaJual adalah harga per pcs — dikalikan jumlah untuk mendapat total pendapatan
+export const totalPendapatan = (o: JobOrder) => o.hargaJual * o.jumlah;
 
-export const margin = (o: JobOrder) =>
-  o.hargaJual > 0 ? (estimasiLaba(o) / o.hargaJual) * 100 : 0;
+export const estimasiLaba = (o: JobOrder) => totalPendapatan(o) - totalProduksi(o);
+
+export const margin = (o: JobOrder) => {
+  const pendapatan = totalPendapatan(o);
+  return pendapatan > 0 ? (estimasiLaba(o) / pendapatan) * 100 : 0;
+};

@@ -3,7 +3,7 @@ import { ReceiptText, ArrowRight, Package, Users, Zap, TrendingUp, Wallet } from
 import type { LucideIcon } from 'lucide-react';
 import type { JobOrder } from '../types';
 import StatusBadge from '../components/StatusBadge';
-import { formatRupiah, formatDate, totalMaterial, totalLabor, totalOverhead, totalProduksi, estimasiLaba, margin } from '../lib/format';
+import { formatRupiah, formatDate, totalMaterial, totalLabor, totalOverhead, totalProduksi, totalPendapatan, estimasiLaba, margin } from '../lib/format';
 
 export default function KartuBiaya({
   orders,
@@ -79,7 +79,7 @@ export default function KartuBiaya({
               <p className="text-sm font-semibold">{order.jumlah} pcs</p>
             </div>
             <div>
-              <p className="text-xs text-brand-100">Harga Jual</p>
+              <p className="text-xs text-brand-100">Harga Jual/pcs</p>
               <p className="text-sm font-semibold">{formatRupiah(order.hargaJual)}</p>
             </div>
             <div>
@@ -112,8 +112,9 @@ export default function KartuBiaya({
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
             <div className="rounded-xl bg-brand-50 p-4 border border-brand-100">
-              <p className="text-xs text-ink-400 font-medium mb-1">Harga Jual</p>
-              <p className="text-lg font-bold text-ink-800">{formatRupiah(order.hargaJual)}</p>
+              <p className="text-xs text-ink-400 font-medium mb-1">Total Pendapatan</p>
+              <p className="text-sm text-ink-500 mb-0.5">{formatRupiah(order.hargaJual)}/pcs × {order.jumlah} pcs</p>
+              <p className="text-lg font-bold text-ink-800">{formatRupiah(totalPendapatan(order))}</p>
             </div>
             <div className="rounded-xl bg-emerald-50 p-4 border border-emerald-100">
               <div className="flex items-center gap-1.5 mb-1">

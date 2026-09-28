@@ -157,7 +157,7 @@ export default function PesananPage({
                   <input type="number" className="input-field" placeholder="0" value={form.jumlah} onChange={(e) => setForm({ ...form, jumlah: e.target.value })} />
                 </div>
                 <div>
-                  <label className="label-field">Harga Jual (Rp)</label>
+                  <label className="label-field">Harga Jual per Pcs (Rp)</label>
                   <input type="number" className="input-field" placeholder="0" value={form.hargaJual} onChange={(e) => setForm({ ...form, hargaJual: e.target.value })} />
                 </div>
               </div>

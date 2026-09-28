@@ -29,7 +29,7 @@ export default function Dashboard({
 }) {
   const activeOrders = orders.filter((o) => o.status === 'Produksi').length;
   const totalBiaya = orders.reduce((s, o) => s + totalProduksi(o), 0);
-  const totalPendapatan = orders.reduce((s, o) => s + o.hargaJual, 0);
+  const totalPendapatan = orders.reduce((s, o) => s + o.hargaJual * o.jumlah, 0);
   const totalLaba = orders.reduce((s, o) => s + estimasiLaba(o), 0);
 
   const recent = [...orders].sort((a, b) => b.tanggal.localeCompare(a.tanggal)).slice(0, 5);
@@ -37,7 +37,7 @@ export default function Dashboard({
   const chartData = orders.slice(0, 6).map((o) => ({
     label: o.nomor.replace('JO-2026-', ''),
     biaya: totalProduksi(o),
-    pendapatan: o.hargaJual,
+    pendapatan: o.hargaJual * o.jumlah,
   }));
 
   const donutSegments = [

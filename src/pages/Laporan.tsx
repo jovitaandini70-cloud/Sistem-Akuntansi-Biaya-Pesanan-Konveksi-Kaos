@@ -9,7 +9,7 @@ export default function Laporan({ orders }: { orders: JobOrder[] }) {
   const totalAllLabor = orders.reduce((s, o) => s + totalLabor(o), 0);
   const totalAllOverhead = orders.reduce((s, o) => s + totalOverhead(o), 0);
   const totalAllProduksi = orders.reduce((s, o) => s + totalProduksi(o), 0);
-  const totalAllPendapatan = orders.reduce((s, o) => s + o.hargaJual, 0);
+  const totalAllPendapatan = orders.reduce((s, o) => s + o.hargaJual * o.jumlah, 0);
   const totalAllLaba = orders.reduce((s, o) => s + estimasiLaba(o), 0);
   const avgMargin = totalAllPendapatan > 0 ? (totalAllLaba / totalAllPendapatan) * 100 : 0;
 
@@ -98,7 +98,7 @@ export default function Laporan({ orders }: { orders: JobOrder[] }) {
                   <td className="px-4 py-3.5 text-sm text-ink-600 text-right whitespace-nowrap">{formatRupiah(totalLabor(o))}</td>
                   <td className="px-4 py-3.5 text-sm text-ink-600 text-right whitespace-nowrap">{formatRupiah(totalOverhead(o))}</td>
                   <td className="px-4 py-3.5 text-sm font-semibold text-ink-800 text-right whitespace-nowrap">{formatRupiah(totalProduksi(o))}</td>
-                  <td className="px-4 py-3.5 text-sm text-ink-700 text-right whitespace-nowrap">{formatRupiah(o.hargaJual)}</td>
+                  <td className="px-4 py-3.5 text-sm text-ink-700 text-right whitespace-nowrap">{formatRupiah(o.hargaJual * o.jumlah)}</td>
                   <td className="px-4 py-3.5 text-sm font-semibold text-emerald-600 text-right whitespace-nowrap">{formatRupiah(estimasiLaba(o))}</td>
                   <td className="px-4 py-3.5 text-sm text-ink-500 text-right">{margin(o).toFixed(1)}%</td>
                 </tr>

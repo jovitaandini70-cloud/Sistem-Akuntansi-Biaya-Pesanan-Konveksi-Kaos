@@ -62,4 +62,7 @@
   .nav-item:not(.nav-item-active):hover {
     @apply bg-brand-100 text-brand-700;
   }
+  .input-cell {
+    @apply w-full px-2 py-1.5 rounded-lg border border-brand-200 bg-white text-ink-900 text-sm placeholder:text-ink-300 focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-all;
+  }
 }
