@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistem Akuntansi Biaya Pesanan Konveksi Kaos</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ========== HEADER ========== -->
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">👕</span>
+        <div>
+          <h1>JobOrder <span>Costing System</span></h1>
+          <p>Sistem Akuntansi Biaya Pesanan Konveksi Kaos</p>
+        </div>
+      </div>
+      <nav>
+        <a href="#dashboard" class="nav-link active" data-page="dashboard">Dashboard</a>
+        <a href="#pesanan"   class="nav-link"        data-page="pesanan">Data Pesanan</a>
+        <a href="#laporan"   class="nav-link"        data-page="laporan">Laporan</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ========== MAIN ========== -->
+  <main>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="page active">
+      <div class="page-header">
+        <h2>Dashboard</h2>
+        <p>Ringkasan performa produksi &amp; keuangan</p>
+      </div>
+
+      <div class="stat-grid" id="statGrid">
+        <div class="stat-card">
+          <p class="stat-label">Total Pesanan</p>
+          <p class="stat-value" id="statTotal">—</p>
+        </div>
+        <div class="stat-card accent-blue">
+          <p class="stat-label">Sedang Produksi</p>
+          <p class="stat-value" id="statProduksi">—</p>
+        </div>
+        <div class="stat-card accent-green">
+          <p class="stat-label">Total Pendapatan</p>
+          <p class="stat-value" id="statPendapatan">—</p>
+        </div>
+        <div class="stat-card accent-violet">
+          <p class="stat-label">Estimasi Laba</p>
+          <p class="stat-value" id="statLaba">—</p>
+        </div>
+      </div>
+
+      <div class="card mt">
+        <h3 class="section-title">Pesanan Terbaru</h3>
+        <div class="table-wrap">
+          <table id="tblDashboard">
+            <thead>
+              <tr>
+                <th>Nomor</th><th>Pelanggan</th><th>Produk</th>
+                <th>Jumlah</th><th>Tanggal</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- DATA PESANAN -->
+    <section id="pesanan" class="page">
+      <div class="page-header">
+        <h2>Data Pesanan</h2>
+        <p>Kelola semua job order produksi</p>
+      </div>
+
+      <div class="toolbar">
+        <input id="searchInput" type="text" placeholder="Cari nomor / pelanggan / produk…" />
+        <div class="filter-group">
+          <button class="filter-btn active" data-status="all">Semua</button>
+          <button class="filter-btn" data-status="Draft">Draft</button>
+          <button class="filter-btn" data-status="Produksi">Produksi</button>
+          <button class="filter-btn" data-status="Selesai">Selesai</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table id="tblPesanan">
+            <thead>
+              <tr>
+                <th>Nomor</th><th>Pelanggan</th><th>Produk</th>
+                <th>Jumlah</th><th>Tanggal</th><th>Status</th>
+                <th>Harga/pcs</th><th>Total Pendapatan</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAPORAN -->
+    <section id="laporan" class="page">
+      <div class="page-header">
+        <h2>Laporan</h2>
+        <p>Ringkasan biaya, pendapatan &amp; laba per pesanan</p>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table id="tblLaporan">
+            <thead>
+              <tr>
+                <th>Nomor</th><th>Pelanggan</th><th>Produk</th><th>Jumlah</th>
+                <th>Bahan Baku</th><th>Tenaga Kerja</th><th>Overhead</th>
+                <th>Total Biaya</th><th>Pendapatan</th><th>Laba</th><th>Margin</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========== LOADING / ERROR ========== -->
+  <div id="loadingOverlay" class="overlay">
+    <div class="spinner"></div>
+    <p>Memuat data…</p>
+  </div>
+  <div id="errorOverlay" class="overlay hidden">
+    <p class="error-msg" id="errorMsg"></p>
+    <button onclick="location.reload()">Coba Lagi</button>
+  </div>
+
+  <footer>
+    <p>Sistem Akuntansi Biaya Pesanan Konveksi Kaos &copy; 2026</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
