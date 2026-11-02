@@ -20,15 +20,15 @@ INSERT INTO job_orders (id, nomor, pelanggan, produk, jumlah, tanggal, status, h
   ('jo-001', 'JO-2026-001', 'PT Garuda Sport',           'Kaos Jersey Futsal Lengan Pendek',    100, '2026-10-02', 'Selesai',   95000),
   ('jo-002', 'JO-2026-002', 'Kopi Kenangan Manis',       'Kaos Promo Grand Opening',            250, '2026-10-05', 'Selesai',   78000),
   ('jo-003', 'JO-2026-003', 'SMA Negeri 3 Semarang',     'Kaos Angkatan 2026',                  180, '2026-10-10', 'Selesai',   82000),
-  ('jo-004', 'JO-2026-004', 'Komunitas Lari Semarang',   'Kaos Event Half Marathon',            120, '2026-10-15', 'Selesai',   88000),
-  ('jo-005', 'JO-2026-005', 'CV Berkah Jaya',            'Seragam Karyawan Polo Shirt',          75, '2026-10-20', 'Selesai',  125000),
-  ('jo-006', 'JO-2026-006', 'Universitas Diponegoro',    'Kaos KKN Periode 2026',               350, '2026-11-01', 'Selesai',   72000),
+  ('jo-004', 'JO-2026-004', 'Komunitas Lari Semarang',   'Kaos Event Half Marathon',            120, '2026-10-15', 'Selesai',   95000),
+  ('jo-005', 'JO-2026-005', 'CV Berkah Jaya',            'Seragam Karyawan Polo Shirt',          75, '2026-10-20', 'Selesai',  145000),
+  ('jo-006', 'JO-2026-006', 'Universitas Diponegoro',    'Kaos KKN Periode 2026',               350, '2026-11-01', 'Selesai',   80000),
   ('jo-007', 'JO-2026-007', 'OSIS SMP Negeri 7 Solo',   'Kaos Pensi & Perpisahan',             150, '2026-11-08', 'Selesai',   85000),
   ('jo-008', 'JO-2026-008', 'PT Astra Motor Jateng',    'Kaos Seragam Mekanik',                 60, '2026-11-15', 'Produksi', 145000),
   ('jo-009', 'JO-2026-009', 'Warung Nasi Bu Sari',      'Kaos Seragam Pelayan',                 25, '2026-11-20', 'Produksi',  98000),
   ('jo-010', 'JO-2026-010', 'Tim Basket Undip',         'Jersey Basket Sublim Full Print',       40, '2026-11-25', 'Produksi', 175000),
   ('jo-011', 'JO-2026-011', 'Dinas Pemuda Kota Semarang','Kaos Hari Sumpah Pemuda',             500, '2026-12-01', 'Draft',     68000),
-  ('jo-012', 'JO-2026-012', 'Klinik Sehat Bersama',     'Seragam Tenaga Medis',                 45, '2026-12-05', 'Draft',    135000);
+  ('jo-012', 'JO-2026-012', 'Klinik Sehat Bersama',     'Seragam Tenaga Medis',                 45, '2026-12-05', 'Draft',    185000);
 
 -- ============================================================
 -- MATERIALS
@@ -329,20 +329,20 @@ INSERT INTO payments (id, job_order_id, tanggal, jumlah, metode, catatan) VALUES
   ('pay-003-1', 'jo-003', '2026-10-10', 5000000,  'Tunai',    'DP dari bendahara OSIS'),
   ('pay-003-2', 'jo-003', '2026-10-18', 9760000,  'Transfer', 'Pelunasan transfer bank');
 
--- JO-004: tagihan 10.560.000 — Lunas
+-- JO-004: tagihan 11.400.000 (120 × 95.000) — Lunas
 INSERT INTO payments (id, job_order_id, tanggal, jumlah, metode, catatan) VALUES
   ('pay-004-1', 'jo-004', '2026-10-15', 4000000,  'Transfer', 'DP pendaftaran event'),
-  ('pay-004-2', 'jo-004', '2026-10-22', 6560000,  'Tunai',    'Pelunasan cash');
+  ('pay-004-2', 'jo-004', '2026-10-22', 7400000,  'Tunai',    'Pelunasan cash');
 
--- JO-005: tagihan 9.375.000 — Lunas
+-- JO-005: tagihan 10.875.000 (75 × 145.000) — Lunas
 INSERT INTO payments (id, job_order_id, tanggal, jumlah, metode, catatan) VALUES
   ('pay-005-1', 'jo-005', '2026-10-20', 3500000,  'Tunai',    'DP 30%'),
-  ('pay-005-2', 'jo-005', '2026-10-27', 5875000,  'Transfer', 'Pelunasan');
+  ('pay-005-2', 'jo-005', '2026-10-27', 7375000,  'Transfer', 'Pelunasan');
 
--- JO-006: tagihan 25.200.000 — Lunas
+-- JO-006: tagihan 28.000.000 (350 × 80.000) — Lunas
 INSERT INTO payments (id, job_order_id, tanggal, jumlah, metode, catatan) VALUES
   ('pay-006-1', 'jo-006', '2026-11-01', 10000000, 'Transfer', 'DP KKN Undip'),
-  ('pay-006-2', 'jo-006', '2026-11-10', 15200000, 'Transfer', 'Pelunasan');
+  ('pay-006-2', 'jo-006', '2026-11-10', 18000000, 'Transfer', 'Pelunasan');
 
 -- JO-007: tagihan 12.750.000 — Lunas
 INSERT INTO payments (id, job_order_id, tanggal, jumlah, metode, catatan) VALUES
@@ -367,7 +367,7 @@ INSERT INTO payments (id, job_order_id, tanggal, jumlah, metode, catatan) VALUES
 INSERT INTO payments (id, job_order_id, tanggal, jumlah, metode, catatan) VALUES
   ('pay-011-1', 'jo-011', '2026-12-01', 10000000, 'Transfer', 'DP 30%');
 
--- JO-012: tagihan 6.075.000 — Belum Bayar
+-- JO-012: tagihan 8.325.000 (45 × 185.000) — Belum Bayar
 -- (tidak ada pembayaran)
 
 -- ============================================================
