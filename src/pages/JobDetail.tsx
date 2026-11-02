@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import {
   ArrowLeft, Package, Users, Zap, ReceiptText,
-  Calendar, User, Box, Plus, Trash2, Pencil, Check, X,
+  Calendar, User, Box, Plus, Trash2, Pencil, Check, X, ChevronDown, Loader2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import type { JobOrder, Material, Labor, OverheadItem } from '../types';
+import type { JobOrder, Material, Labor, OverheadItem, OrderStatus } from '../types';
 import StatusBadge from '../components/StatusBadge';
 import {
   formatRupiah, formatDate,
@@ -14,7 +14,10 @@ import {
   addMaterial, updateMaterial, deleteMaterial,
   addLabor, updateLabor, deleteLabor,
   addOverhead, updateOverhead, deleteOverhead,
+  updateOrder,
 } from '../lib/jobOrderService';
+
+const statusOptions: OrderStatus[] = ['Draft', 'Produksi', 'Selesai'];
 
 // ─── Tipe lokal untuk form state ────────────────────────────────────────────
 
@@ -57,6 +60,10 @@ export default function JobDetail({
   const [editOverheadId, setEditOverheadId]       = useState<string | null>(null);
   const [editOverheadForm, setEditOverheadForm]   = useState<OverheadForm>(emptyOverhead());
   const [savingOverhead, setSavingOverhead]       = useState(false);
+
+  // ── Status state ──
+  const [showStatusMenu, setShowStatusMenu]       = useState(false);
+  const [savingStatus, setSavingStatus]          = useState(false);
 
   // ─── Material handlers ─────────────────────────────────────────────────────
 
@@ -151,6 +158,25 @@ export default function JobDetail({
     onOrderChange({ ...order, overheads: order.overheads.filter((o) => o.id !== id) });
   };
 
+  // ─── Status handler ────────────────────────────────────────────────────────
+
+  const handleStatusChange = async (newStatus: OrderStatus) => {
+    if (newStatus === order.status) {
+      setShowStatusMenu(false);
+      return;
+    }
+    setSavingStatus(true);
+    try {
+      await updateOrder(order.id, { status: newStatus });
+      onOrderChange({ ...order, status: newStatus });
+      setShowStatusMenu(false);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Gagal mengubah status pesanan');
+    } finally {
+      setSavingStatus(false);
+    }
+  };
+
   // ─── Render ────────────────────────────────────────────────────────────────
 
   return (
@@ -164,7 +190,41 @@ export default function JobDetail({
           <div>
             <div className="flex items-center gap-2.5">
               <h2 className="text-xl font-bold text-ink-900">{order.nomor}</h2>
-              <StatusBadge status={order.status} size="sm" />
+              {/* Status selector — klik badge untuk mengubah status */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowStatusMenu((v) => !v)}
+                  disabled={savingStatus}
+                  className="inline-flex items-center gap-1 rounded-full transition-opacity hover:opacity-80 disabled:opacity-50"
+                  title="Klik untuk mengubah status"
+                >
+                  <StatusBadge status={order.status} size="sm" />
+                  <ChevronDown size={14} className={`text-ink-400 transition-transform ${showStatusMenu ? 'rotate-180' : ''}`} />
+                </button>
+                {showStatusMenu && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setShowStatusMenu(false)} />
+                    <div className="absolute left-0 top-full mt-1.5 z-20 w-44 rounded-xl border border-brand-100 bg-white p-1.5 shadow-lg animate-scale-in origin-top-left">
+                      <p className="px-2.5 py-1.5 text-xs font-semibold text-ink-400">Ubah Status</p>
+                      {statusOptions.map((s) => (
+                        <button
+                          key={s}
+                          onClick={() => handleStatusChange(s)}
+                          disabled={savingStatus}
+                          className="flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-brand-50 disabled:opacity-50"
+                        >
+                          <StatusBadge status={s} size="sm" />
+                          {savingStatus
+                            ? <Loader2 size={14} className="animate-spin text-ink-400" />
+                            : order.status === s
+                              ? <Check size={14} className="text-emerald-500" />
+                              : <span className="w-3.5" />}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
             <p className="text-sm text-ink-400 mt-0.5">{order.produk} — {order.pelanggan}</p>
           </div>

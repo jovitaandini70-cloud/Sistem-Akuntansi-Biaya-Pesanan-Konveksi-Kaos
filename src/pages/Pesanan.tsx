@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Plus, Search, Eye, Filter, Calendar, Package } from 'lucide-react';
+import { Plus, Eye, Filter, Calendar, Package } from 'lucide-react';
 import type { JobOrder, OrderStatus } from '../types';
 import StatusBadge from '../components/StatusBadge';
 import { formatRupiah, formatDate, totalProduksi, estimasiLaba } from '../lib/format';
