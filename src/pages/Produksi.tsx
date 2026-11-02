@@ -269,6 +269,8 @@ function ProduksiDetail({
         estimasiSelesai: mulaiForm.estimasiSelesai,
         catatan: mulaiForm.catatan,
       });
+      // Set status pesanan ke Produksi agar jurnal akuntansi terbentuk
+      await updateOrder(order.id, { status: 'Produksi' });
       // Tambahkan 5 tahapan default
       const stages: ProductionStage[] = [];
       for (let i = 0; i < defaultStages.length; i++) {
@@ -282,7 +284,7 @@ function ProduksiDetail({
         });
         stages.push(s);
       }
-      onOrderChange({ ...order, produksi: { ...p, tahapan: stages } });
+      onOrderChange({ ...order, status: 'Produksi', produksi: { ...p, tahapan: stages } });
       setShowMulaiForm(false);
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Gagal memulai produksi');

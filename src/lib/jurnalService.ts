@@ -40,6 +40,7 @@ export const CHART_OF_ACCOUNTS: LedgerAkun[] = [
   { kode: '1-202', nama: 'Barang Dalam Proses (BDP)',         tipe: 'Aset',       posisiNormal: 'Debet'  },
   { kode: '1-203', nama: 'Persediaan Barang Jadi',            tipe: 'Aset',       posisiNormal: 'Debet'  },
   { kode: '2-101', nama: 'Hutang Gaji',                       tipe: 'Kewajiban',  posisiNormal: 'Kredit' },
+  { kode: '2-102', nama: 'BOP Dibebankan',                    tipe: 'Kewajiban',  posisiNormal: 'Kredit' },
   { kode: '4-101', nama: 'Pendapatan Penjualan',              tipe: 'Pendapatan', posisiNormal: 'Kredit' },
   { kode: '5-101', nama: 'Harga Pokok Penjualan (HPP)',       tipe: 'Beban',      posisiNormal: 'Debet'  },
   { kode: '5-201', nama: 'BDP - Biaya Bahan Baku',            tipe: 'Beban',      posisiNormal: 'Debet'  },
@@ -153,7 +154,7 @@ export function buildJurnalForOrder(order: JobOrder): JurnalEntry[] {
         jobOrderId: order.id,
         akun: [
           debet('5-203', tBOP),
-          kredit('1-202', tBOP),
+          kredit('2-102', tBOP),   // BOP Dibebankan (Kewajiban, Kredit-normal)
         ],
       });
     }
@@ -163,7 +164,7 @@ export function buildJurnalForOrder(order: JobOrder): JurnalEntry[] {
   if (order.status === 'Selesai' && tTotal > 0) {
     const tglSelesai = order.produksi?.tanggalSelesai || order.tanggal;
 
-    // 6a. Transfer BDP ke Persediaan Barang Jadi
+    // 6a. Transfer akumulasi biaya BDP + tutup BOP Dibebankan ke Persediaan Barang Jadi
     entries.push({
       id:         `j-psbj-${order.id}`,
       tanggal:    tglSelesai,
@@ -173,10 +174,10 @@ export function buildJurnalForOrder(order: JobOrder): JurnalEntry[] {
       jobOrderId: order.id,
       akun: [
         debet('1-203', tTotal),
-        kredit('5-201', tBBB > 0 ? tBBB : 0),
-        kredit('5-202', tBTKL > 0 ? tBTKL : 0),
-        kredit('5-203', tBOP > 0 ? tBOP : 0),
-      ].filter((a) => a.debet > 0 || a.kredit > 0),
+        ...(tBBB  > 0 ? [kredit('5-201', tBBB)]  : []),
+        ...(tBTKL > 0 ? [kredit('5-202', tBTKL)] : []),
+        ...(tBOP  > 0 ? [kredit('5-203', tBOP)]  : []),
+      ],
     });
 
     // 6b. Pengakuan HPP atas barang yang diserahkan

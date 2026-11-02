@@ -97,12 +97,13 @@ export type KodeAkun =
   | '1-201' // Persediaan Bahan Baku
   | '1-202' // Barang Dalam Proses (BDP)
   | '1-203' // Persediaan Barang Jadi
+  | '2-101' // Hutang Gaji
+  | '2-102' // BOP Dibebankan
   | '4-101' // Pendapatan Penjualan
   | '5-101' // Harga Pokok Produksi (HPP)
   | '5-201' // Biaya Bahan Baku (BBB)
   | '5-202' // Biaya Tenaga Kerja Langsung (BTKL)
-  | '5-203' // Biaya Overhead Pabrik (BOP)
-  | '2-101'; // Hutang Gaji
+  | '5-203'; // Biaya Overhead Pabrik (BOP)
 
 export type TipeAkun = 'Aset' | 'Kewajiban' | 'Pendapatan' | 'Beban';
 export type PosisiNormal = 'Debet' | 'Kredit';

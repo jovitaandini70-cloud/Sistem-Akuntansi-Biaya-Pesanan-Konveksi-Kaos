@@ -91,10 +91,10 @@ export default function Sidebar({
           <div className="rounded-2xl bg-gradient-to-br from-brand-50 to-brand-100 p-4 border border-brand-200/50">
             <div className="flex items-center gap-2 mb-1.5">
               <Settings size={16} className="text-brand-600" />
-              <p className="text-xs font-bold text-brand-700">MVP Mode</p>
+              <p className="text-xs font-bold text-brand-700">Sistem Aktif</p>
             </div>
             <p className="text-xs text-ink-500 leading-relaxed">
-              Data demo untuk presentasi. Belum terhubung ke database.
+              Terhubung ke Supabase. Data pesanan, pembayaran & produksi tersimpan real-time.
             </p>
           </div>
         </div>

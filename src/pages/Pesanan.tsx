@@ -32,6 +32,10 @@ export default function PesananPage({
 
   const handleSubmit = () => {
     if (!form.nomor || !form.pelanggan || !form.produk || !form.tanggal) return;
+    if (Number(form.jumlah) <= 0) {
+      alert('Jumlah pesanan harus lebih dari 0');
+      return;
+    }
     onAddOrder({
       nomor: form.nomor,
       pelanggan: form.pelanggan,

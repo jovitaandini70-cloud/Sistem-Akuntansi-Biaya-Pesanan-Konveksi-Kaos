@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, Fragment } from 'react';
 import {
   FileText, LayoutList, TableProperties,
   ChevronDown, TrendingUp, Wallet, Factory, ArrowRight,
@@ -185,13 +185,11 @@ function JurnalUmumTab({ jurnal }: { jurnal: ReturnType<typeof buildAllJurnal> }
                     {ai === 0 ? (
                       <span className="truncate block">{j.keterangan}</span>
                     ) : (
-                      <span className={`text-ink-400 ${a.kredit > 0 ? 'pl-5' : ''}`}>{a.namaAkun}</span>
+                      <span className={`text-ink-500 ${a.kredit > 0 ? 'pl-6 italic' : 'pl-2'}`}>{a.namaAkun}</span>
                     )}
                   </td>
-                  <td className="px-5 py-2.5 text-sm text-ink-500">
-                    {ai === 0 ? '' : (
-                      <span className={a.kredit > 0 ? 'pl-5 text-ink-400' : 'font-medium text-ink-700'}>{a.namaAkun}</span>
-                    )}
+                  <td className="px-5 py-2.5 text-sm text-ink-400">
+                    {ai === 0 ? '' : ''}
                   </td>
                   <td className="px-5 py-2.5 text-sm text-right whitespace-nowrap">
                     {a.debet > 0
@@ -431,9 +429,9 @@ function NeracaSaldoTab({ neraca }: { neraca: ReturnType<typeof buildNeracaSaldo
               const subtotalSD = rows.reduce((s, r) => s + r.saldoDebet, 0);
               const subtotalSK = rows.reduce((s, r) => s + r.saldoKredit, 0);
               return (
-                <>
+                <Fragment key={tipe}>
                   {/* Group header */}
-                  <tr key={`hdr-${tipe}`} className="bg-ink-50">
+                  <tr className="bg-ink-50">
                     <td colSpan={7} className="px-5 py-2">
                       <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded ${tipeColor[tipe]}`}>{tipe}</span>
                     </td>
@@ -452,13 +450,13 @@ function NeracaSaldoTab({ neraca }: { neraca: ReturnType<typeof buildNeracaSaldo
                     </tr>
                   ))}
                   {/* Subtotal per group */}
-                  <tr key={`sub-${tipe}`} className="bg-ink-50/80 border-t border-brand-200">
+                  <tr className="bg-ink-50/80 border-t border-brand-200">
                     <td colSpan={3} className="px-5 py-2.5 text-xs font-bold text-ink-500">Subtotal {tipe}</td>
                     <td colSpan={2} />
                     <td className="px-5 py-2.5 text-sm font-bold text-ink-700 text-right whitespace-nowrap bg-brand-50/50">{subtotalSD > 0 ? formatRupiah(subtotalSD) : '—'}</td>
                     <td className="px-5 py-2.5 text-sm font-bold text-ink-700 text-right whitespace-nowrap bg-brand-50/50">{subtotalSK > 0 ? formatRupiah(subtotalSK) : '—'}</td>
                   </tr>
-                </>
+                </Fragment>
               );
             })}
 
@@ -479,7 +477,7 @@ function NeracaSaldoTab({ neraca }: { neraca: ReturnType<typeof buildNeracaSaldo
         {[
           { label: 'BBB → BDP', ket: 'Bahan baku masuk produksi dicatat sebagai BDP-BBB (D) / Persediaan BB (K)', icon: Factory, color: 'amber' },
           { label: 'BTKL → BDP', ket: 'Upah tenaga kerja langsung dibebankan sebagai BDP-BTKL (D) / Hutang Gaji (K)', icon: ChevronDown, color: 'violet' },
-          { label: 'BOP → BDP', ket: 'Overhead pabrik dibebankan ke pesanan BDP-BOP (D) / BOP Dibebankan (K)', icon: ChevronDown, color: 'orange' },
+          { label: 'BOP → BOP Dibebankan', ket: 'Overhead pabrik dibebankan ke pesanan: BDP-BOP (D) / BOP Dibebankan (K) — Kredit 2-102', icon: ChevronDown, color: 'orange' },
           { label: 'BDP → BJ', ket: 'Saat produksi selesai, BDP ditransfer ke Persediaan BJ, lalu HPP dicatat', icon: CheckCircle2, color: 'emerald' },
         ].map((item) => (
           <div key={item.label} className="rounded-xl bg-brand-50/50 border border-brand-100 p-3">

@@ -22,7 +22,7 @@ export const totalLabor = (o: JobOrder) =>
   o.labors.reduce((s, l) => s + l.jamKerja * l.tarifPerJam, 0);
 
 export const totalOverhead = (o: JobOrder) =>
-  o.overheads.reduce((s, o) => s + o.biaya, 0);
+  o.overheads.reduce((s, ov) => s + ov.biaya, 0);
 
 export const totalProduksi = (o: JobOrder) =>
   totalMaterial(o) + totalLabor(o) + totalOverhead(o);
