@@ -7,17 +7,19 @@ import KartuBiaya from './pages/KartuBiaya';
 import Laporan from './pages/Laporan';
 import Pembayaran from './pages/Pembayaran';
 import Produksi from './pages/Produksi';
+import BukuBesar from './pages/BukuBesar';
 import { fetchAllOrders, createOrder } from './lib/jobOrderService';
 import type { PageKey, JobOrder } from './types';
 
 const pageMeta: Record<PageKey, { title: string; subtitle: string }> = {
-  dashboard: { title: 'Dashboard', subtitle: 'Ringkasan performa produksi & keuangan' },
-  pesanan: { title: 'Data Pesanan', subtitle: 'Kelola semua job order produksi' },
-  detail: { title: 'Detail Job Order', subtitle: 'Rincian biaya bahan, tenaga kerja & overhead' },
-  'kartu-biaya': { title: 'Kartu Biaya Pesanan', subtitle: 'Job cost sheet untuk setiap pesanan' },
-  laporan: { title: 'Laporan', subtitle: 'Ringkasan biaya, pendapatan & laba' },
-  pembayaran: { title: 'Pembayaran', subtitle: 'Kelola pembayaran & piutang pelanggan' },
-  produksi: { title: 'Proses Produksi', subtitle: 'Pantau progress & tahapan produksi' },
+  dashboard:    { title: 'Dashboard',            subtitle: 'Ringkasan performa produksi & keuangan' },
+  pesanan:      { title: 'Data Pesanan',          subtitle: 'Kelola semua job order produksi' },
+  detail:       { title: 'Detail Job Order',      subtitle: 'Rincian biaya bahan, tenaga kerja & overhead' },
+  'kartu-biaya':{ title: 'Kartu Biaya Pesanan',   subtitle: 'Job cost sheet untuk setiap pesanan' },
+  laporan:      { title: 'Laporan',               subtitle: 'Ringkasan biaya, pendapatan & laba' },
+  pembayaran:   { title: 'Pembayaran',            subtitle: 'Kelola pembayaran & piutang pelanggan' },
+  produksi:     { title: 'Proses Produksi',       subtitle: 'Pantau progress & tahapan produksi' },
+  'buku-besar': { title: 'Buku Besar',            subtitle: 'Jurnal umum, buku besar & neraca saldo akuntansi biaya' },
 };
 
 export default function App() {
@@ -134,6 +136,7 @@ export default function App() {
           {page === 'produksi' && (
             <Produksi orders={orders} onOrderChange={handleOrderChange} />
           )}
+          {page === 'buku-besar' && <BukuBesar orders={orders} />}
           {page === 'laporan' && <Laporan orders={orders} />}
         </main>
       </div>
