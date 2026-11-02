@@ -56,21 +56,28 @@ export const statusPembayaran = (o: JobOrder): PaymentStatus => {
 };
 
 // Progress produksi berdasarkan tahapan yang selesai (0-100)
+// Jika status pesanan Selesai, progress selalu 100%
 export const progressProduksi = (o: JobOrder): number => {
+  if (o.status === 'Selesai') return 100;
   if (!o.produksi || o.produksi.tahapan.length === 0) return 0;
   const selesai = o.produksi.tahapan.filter((t) => t.status === 'Selesai').length;
   return Math.round((selesai / o.produksi.tahapan.length) * 100);
 };
 
 // Jumlah tahapan yang selesai vs total
-export const tahapanSelesai = (o: JobOrder): number =>
-  o.produksi?.tahapan.filter((t) => t.status === 'Selesai').length ?? 0;
+export const tahapanSelesai = (o: JobOrder): number => {
+  if (o.status === 'Selesai' && o.produksi?.tahapan.length)
+    return o.produksi.tahapan.length;
+  return o.produksi?.tahapan.filter((t) => t.status === 'Selesai').length ?? 0;
+};
 
 export const totalTahapan = (o: JobOrder): number =>
   o.produksi?.tahapan.length ?? 0;
 
-// Status produksi ringkas
+// Status produksi ringkas — diselaraskan dengan status pesanan
 export const statusProduksi = (o: JobOrder): 'Belum Mulai' | 'Dalam Proses' | 'Selesai' => {
+  // Status pesanan adalah sumber kebenaran utama
+  if (o.status === 'Selesai') return 'Selesai';
   if (!o.produksi) return 'Belum Mulai';
   if (o.produksi.tanggalSelesai) return 'Selesai';
   return 'Dalam Proses';

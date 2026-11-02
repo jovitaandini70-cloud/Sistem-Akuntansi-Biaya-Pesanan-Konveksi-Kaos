@@ -257,6 +257,7 @@ function ProduksiDetail({
   const sts = statusProduksi(order);
   const hari = hariMenujuEstimasi(order);
   const payStatus = statusPembayaran(order);
+  const isSelesai = order.status === 'Selesai' || sts === 'Selesai';
   const allStagesDone = produksi !== null && produksi.tahapan.length > 0 && produksi.tahapan.every((t) => t.status === 'Selesai');
 
   // ── Mulai Produksi ──
@@ -442,8 +443,21 @@ function ProduksiDetail({
         </div>
       </div>
 
-      {/* Belum mulai produksi */}
-      {!produksi && !showMulaiForm && (
+      {/* Pesanan Selesai tanpa record produksi */}
+      {!produksi && isSelesai && (
+        <div className="card p-8 text-center">
+          <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 mb-4">
+            <CheckCircle2 size={32} />
+          </div>
+          <h3 className="font-bold text-ink-900 text-base mb-1">Pesanan Selesai</h3>
+          <p className="text-sm text-ink-400">
+            Status pesanan ini sudah <strong>Selesai</strong>. Produksi telah tuntas.
+          </p>
+        </div>
+      )}
+
+      {/* Belum mulai produksi — hanya tampil jika bukan Selesai */}
+      {!produksi && !showMulaiForm && !isSelesai && (
         <div className="card p-8 text-center">
           <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-2xl bg-brand-50 text-brand-600 mb-4">
             <Factory size={32} />
@@ -465,8 +479,8 @@ function ProduksiDetail({
         </div>
       )}
 
-      {/* Form mulai produksi */}
-      {!produksi && showMulaiForm && (
+      {/* Form mulai produksi — hanya jika bukan Selesai */}
+      {!produksi && showMulaiForm && !isSelesai && (
         <div className="card p-6 max-w-lg">
           <div className="flex items-center gap-2.5 mb-5">
             <Play size={20} className="text-brand-600" />
@@ -592,12 +606,15 @@ function ProduksiDetail({
                 </div>
                 <div>
                   <h3 className="font-bold text-ink-900 text-sm">Tahapan Produksi</h3>
-                  <p className="text-xs text-ink-400">Klik status untuk mengubah: Belum → Proses → Selesai</p>
+                  <p className="text-xs text-ink-400">
+                    {isSelesai ? 'Produksi selesai — data hanya bisa dilihat' : 'Klik status untuk mengubah: Belum → Proses → Selesai'}
+                  </p>
                 </div>
               </div>
               <button
                 onClick={() => { setShowAddTahapan((v) => !v); setEditId(null); }}
-                className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-2 text-xs font-semibold text-white hover:bg-brand-700 transition-colors"
+                disabled={isSelesai}
+                className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-2 text-xs font-semibold text-white hover:bg-brand-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Plus size={14} /> Tambah Tahapan
               </button>
@@ -669,7 +686,12 @@ function ProduksiDetail({
                         <td className="px-5 py-3.5 text-center text-sm font-semibold text-ink-400">{t.urutan}</td>
                         <td className="px-5 py-3.5 text-sm text-ink-700 font-medium">{t.namaTahapan}</td>
                         <td className="px-5 py-3.5 text-center">
-                          <button onClick={() => handleCycleStatus(t)} className="transition-transform hover:scale-110" title="Klik untuk mengubah status">
+                          <button
+                            onClick={() => !isSelesai && handleCycleStatus(t)}
+                            disabled={isSelesai}
+                            className={`transition-transform ${!isSelesai ? 'hover:scale-110 cursor-pointer' : 'cursor-default opacity-80'}`}
+                            title={isSelesai ? 'Pesanan sudah selesai' : 'Klik untuk mengubah status'}
+                          >
                             <TahapanBadge status={t.status} />
                           </button>
                         </td>
@@ -677,10 +699,12 @@ function ProduksiDetail({
                         <td className="px-5 py-3.5 text-sm text-ink-500 whitespace-nowrap">{t.tanggalSelesai ? formatDate(t.tanggalSelesai) : '—'}</td>
                         <td className="px-5 py-3.5 text-sm text-ink-500 max-w-[200px] truncate">{t.catatan || '—'}</td>
                         <td className="px-5 py-3.5">
-                          <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <ActionBtn icon={Pencil} color="blue" onClick={() => { setEditId(t.id); setEditForm({ namaTahapan: t.namaTahapan, urutan: t.urutan, status: t.status, tanggalMulai: t.tanggalMulai, tanggalSelesai: t.tanggalSelesai, catatan: t.catatan }); }} title="Edit" />
-                            <ActionBtn icon={Trash2} color="red" onClick={() => handleDeleteTahapan(t.id)} title="Hapus" />
-                          </div>
+                          {!isSelesai && (
+                            <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <ActionBtn icon={Pencil} color="blue" onClick={() => { setEditId(t.id); setEditForm({ namaTahapan: t.namaTahapan, urutan: t.urutan, status: t.status, tanggalMulai: t.tanggalMulai, tanggalSelesai: t.tanggalSelesai, catatan: t.catatan }); }} title="Edit" />
+                              <ActionBtn icon={Trash2} color="red" onClick={() => handleDeleteTahapan(t.id)} title="Hapus" />
+                            </div>
+                          )}
                         </td>
                       </tr>
                     )
@@ -712,7 +736,7 @@ function ProduksiDetail({
           </div>
 
           {/* Selesai indicator */}
-          {sts === 'Selesai' && (
+          {isSelesai && (
             <div className="card p-5 bg-gradient-to-br from-emerald-50 to-brand-50 border-emerald-200">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
@@ -721,7 +745,9 @@ function ProduksiDetail({
                 <div>
                   <p className="font-bold text-ink-900 text-sm">Produksi Selesai</p>
                   <p className="text-xs text-ink-500">
-                    Selesai pada {produksi.tanggalSelesai ? formatDate(produksi.tanggalSelesai) : '—'} — {produksi.tahapan.length} tahapan diselesaikan
+                    {produksi?.tanggalSelesai
+                      ? `Selesai pada ${formatDate(produksi.tanggalSelesai)} — ${produksi.tahapan.length} tahapan diselesaikan`
+                      : `Status pesanan: Selesai${produksi ? ` — ${produksi.tahapan.length} tahapan` : ''}`}
                   </p>
                 </div>
               </div>
