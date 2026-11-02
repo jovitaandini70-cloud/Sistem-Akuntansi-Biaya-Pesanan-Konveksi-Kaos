@@ -50,12 +50,51 @@ CREATE TABLE IF NOT EXISTS overheads (
   created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Tabel pembayaran per job order (mendukung cicilan / multi-pembayaran)
+CREATE TABLE IF NOT EXISTS payments (
+  id           TEXT PRIMARY KEY,
+  job_order_id TEXT NOT NULL REFERENCES job_orders(id) ON DELETE CASCADE,
+  tanggal      DATE NOT NULL DEFAULT CURRENT_DATE,
+  jumlah       NUMERIC(15, 2) NOT NULL DEFAULT 0,
+  metode       TEXT NOT NULL DEFAULT 'Tunai' CHECK (metode IN ('Tunai', 'Transfer', 'Cicilan', 'Lainnya')),
+  catatan      TEXT DEFAULT '',
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Tabel proses produksi per job order (satu record per pesanan)
+CREATE TABLE IF NOT EXISTS produksi (
+  id               TEXT PRIMARY KEY,
+  job_order_id     TEXT NOT NULL UNIQUE REFERENCES job_orders(id) ON DELETE CASCADE,
+  tanggal_mulai    DATE,
+  estimasi_selesai DATE,
+  tanggal_selesai  DATE,
+  catatan          TEXT DEFAULT '',
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Tabel tahapan produksi per job order (multi-tahapan)
+CREATE TABLE IF NOT EXISTS produksi_tahapan (
+  id              TEXT PRIMARY KEY,
+  job_order_id    TEXT NOT NULL REFERENCES job_orders(id) ON DELETE CASCADE,
+  nama_tahapan    TEXT NOT NULL,
+  urutan          INTEGER NOT NULL DEFAULT 0,
+  status          TEXT NOT NULL DEFAULT 'Belum' CHECK (status IN ('Belum', 'Proses', 'Selesai')),
+  tanggal_mulai   DATE,
+  tanggal_selesai DATE,
+  catatan         TEXT DEFAULT '',
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- ============================================================
 -- Index untuk performa query
 -- ============================================================
 CREATE INDEX IF NOT EXISTS idx_materials_job_order_id ON materials(job_order_id);
 CREATE INDEX IF NOT EXISTS idx_labors_job_order_id    ON labors(job_order_id);
 CREATE INDEX IF NOT EXISTS idx_overheads_job_order_id ON overheads(job_order_id);
+CREATE INDEX IF NOT EXISTS idx_payments_job_order_id  ON payments(job_order_id);
+CREATE INDEX IF NOT EXISTS idx_produksi_job_order_id   ON produksi(job_order_id);
+CREATE INDEX IF NOT EXISTS idx_tahapan_job_order_id   ON produksi_tahapan(job_order_id);
 CREATE INDEX IF NOT EXISTS idx_job_orders_status      ON job_orders(status);
 CREATE INDEX IF NOT EXISTS idx_job_orders_tanggal     ON job_orders(tanggal);
 
@@ -66,8 +105,14 @@ ALTER TABLE job_orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE materials  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE labors     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE overheads  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payments   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE produksi   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE produksi_tahapan ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "allow_all_job_orders" ON job_orders FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all_materials"  ON materials  FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all_labors"     ON labors     FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all_overheads"  ON overheads  FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "allow_all_payments"   ON payments   FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "allow_all_produksi"   ON produksi   FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "allow_all_tahapan"    ON produksi_tahapan FOR ALL USING (true) WITH CHECK (true);

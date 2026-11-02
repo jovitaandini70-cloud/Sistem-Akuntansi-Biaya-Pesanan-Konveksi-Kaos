@@ -1,5 +1,9 @@
 export type OrderStatus = 'Draft' | 'Produksi' | 'Selesai';
 
+export type PaymentMetode = 'Tunai' | 'Transfer' | 'Cicilan' | 'Lainnya';
+export type PaymentStatus = 'Lunas' | 'Sebagian' | 'Belum Bayar';
+export type TahapanStatus = 'Belum' | 'Proses' | 'Selesai';
+
 export interface Material {
   id: string;
   kode: string;
@@ -24,6 +28,33 @@ export interface OverheadItem {
   biaya: number;
 }
 
+export interface Payment {
+  id: string;
+  tanggal: string;
+  jumlah: number;
+  metode: PaymentMetode;
+  catatan: string;
+}
+
+export interface ProductionStage {
+  id: string;
+  namaTahapan: string;
+  urutan: number;
+  status: TahapanStatus;
+  tanggalMulai: string;
+  tanggalSelesai: string;
+  catatan: string;
+}
+
+export interface Production {
+  id: string;
+  tanggalMulai: string;
+  estimasiSelesai: string;
+  tanggalSelesai: string;
+  catatan: string;
+  tahapan: ProductionStage[];
+}
+
 export interface JobOrder {
   id: string;
   nomor: string;
@@ -36,6 +67,8 @@ export interface JobOrder {
   materials: Material[];
   labors: Labor[];
   overheads: OverheadItem[];
+  payments: Payment[];
+  produksi: Production | null;
 }
 
 export type PageKey =
@@ -43,7 +76,9 @@ export type PageKey =
   | 'pesanan'
   | 'detail'
   | 'kartu-biaya'
-  | 'laporan';
+  | 'laporan'
+  | 'pembayaran'
+  | 'produksi';
 
 export interface NavItem {
   key: PageKey;

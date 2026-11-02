@@ -5,6 +5,8 @@ import Pesanan from './pages/Pesanan';
 import JobDetail from './pages/JobDetail';
 import KartuBiaya from './pages/KartuBiaya';
 import Laporan from './pages/Laporan';
+import Pembayaran from './pages/Pembayaran';
+import Produksi from './pages/Produksi';
 import { fetchAllOrders, createOrder } from './lib/jobOrderService';
 import type { PageKey, JobOrder } from './types';
 
@@ -14,6 +16,8 @@ const pageMeta: Record<PageKey, { title: string; subtitle: string }> = {
   detail: { title: 'Detail Job Order', subtitle: 'Rincian biaya bahan, tenaga kerja & overhead' },
   'kartu-biaya': { title: 'Kartu Biaya Pesanan', subtitle: 'Job cost sheet untuk setiap pesanan' },
   laporan: { title: 'Laporan', subtitle: 'Ringkasan biaya, pendapatan & laba' },
+  pembayaran: { title: 'Pembayaran', subtitle: 'Kelola pembayaran & piutang pelanggan' },
+  produksi: { title: 'Proses Produksi', subtitle: 'Pantau progress & tahapan produksi' },
 };
 
 export default function App() {
@@ -56,7 +60,7 @@ export default function App() {
   };
 
   const handleAddOrder = async (
-    data: Omit<JobOrder, 'id' | 'materials' | 'labors' | 'overheads'>
+    data: Omit<JobOrder, 'id' | 'materials' | 'labors' | 'overheads' | 'payments' | 'produksi'>
   ) => {
     try {
       const newOrder = await createOrder(data);
@@ -124,6 +128,12 @@ export default function App() {
             <JobDetail order={selectedOrder} onBack={() => handleNavigate('pesanan')} onOrderChange={handleOrderChange} />
           )}
           {page === 'kartu-biaya' && <KartuBiaya orders={orders} onSelectOrder={handleSelectOrder} />}
+          {page === 'pembayaran' && (
+            <Pembayaran orders={orders} onOrderChange={handleOrderChange} onNavigate={handleNavigate} />
+          )}
+          {page === 'produksi' && (
+            <Produksi orders={orders} onOrderChange={handleOrderChange} />
+          )}
           {page === 'laporan' && <Laporan orders={orders} />}
         </main>
       </div>

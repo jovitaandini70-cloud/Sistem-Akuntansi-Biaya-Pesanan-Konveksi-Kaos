@@ -5,7 +5,7 @@
  */
 
 import { supabase } from './supabase';
-import type { JobOrder, Material, Labor, OverheadItem, OrderStatus } from '../types';
+import type { JobOrder, Material, Labor, OverheadItem, OrderStatus, Payment, PaymentMetode, ProductionStage, TahapanStatus, Production } from '../types';
 
 // ----------------------------------------------------------------
 // Helper: mapping dari row Postgres (snake_case) ke tipe TypeScript
@@ -41,11 +41,52 @@ function mapOverhead(row: Record<string, unknown>): OverheadItem {
   };
 }
 
+function mapPayment(row: Record<string, unknown>): Payment {
+  return {
+    id: row.id as string,
+    tanggal: (row.tanggal as string) ?? '',
+    jumlah: Number(row.jumlah),
+    metode: (row.metode as PaymentMetode) ?? 'Tunai',
+    catatan: (row.catatan as string) ?? '',
+  };
+}
+
+function mapProductionStage(row: Record<string, unknown>): ProductionStage {
+  return {
+    id: row.id as string,
+    namaTahapan: row.nama_tahapan as string,
+    urutan: Number(row.urutan),
+    status: (row.status as TahapanStatus) ?? 'Belum',
+    tanggalMulai: (row.tanggal_mulai as string) ?? '',
+    tanggalSelesai: (row.tanggal_selesai as string) ?? '',
+    catatan: (row.catatan as string) ?? '',
+  };
+}
+
+function mapProduction(
+  row: Record<string, unknown> | Record<string, unknown>[] | undefined,
+  tahapan: ProductionStage[]
+): Production | null {
+  if (!row) return null;
+  const p = Array.isArray(row) ? row[0] : row;
+  if (!p) return null;
+  return {
+    id: p.id as string,
+    tanggalMulai: (p.tanggal_mulai as string) ?? '',
+    estimasiSelesai: (p.estimasi_selesai as string) ?? '',
+    tanggalSelesai: (p.tanggal_selesai as string) ?? '',
+    catatan: (p.catatan as string) ?? '',
+    tahapan,
+  };
+}
+
 function mapJobOrder(
   row: Record<string, unknown>,
   materials: Material[],
   labors: Labor[],
-  overheads: OverheadItem[]
+  overheads: OverheadItem[],
+  payments: Payment[],
+  produksi: Production | null
 ): JobOrder {
   return {
     id: row.id as string,
@@ -59,6 +100,8 @@ function mapJobOrder(
     materials,
     labors,
     overheads,
+    payments,
+    produksi,
   };
 }
 
@@ -72,21 +115,27 @@ export async function fetchAllOrders(): Promise<JobOrder[]> {
       *,
       materials (*),
       labors (*),
-      overheads (*)
+      overheads (*),
+      payments (*),
+      produksi (*),
+      produksi_tahapan (*)
     `)
     .order('tanggal', { ascending: false });
 
   if (error) throw new Error(`Gagal mengambil data pesanan: ${error.message}`);
   if (!orders) return [];
 
-  return orders.map((o) =>
-    mapJobOrder(
+  return orders.map((o) => {
+    const tahapan = (o.produksi_tahapan as Record<string, unknown>[]).map(mapProductionStage);
+    return mapJobOrder(
       o,
       (o.materials as Record<string, unknown>[]).map(mapMaterial),
       (o.labors as Record<string, unknown>[]).map(mapLabor),
-      (o.overheads as Record<string, unknown>[]).map(mapOverhead)
-    )
-  );
+      (o.overheads as Record<string, unknown>[]).map(mapOverhead),
+      (o.payments as Record<string, unknown>[]).map(mapPayment),
+      mapProduction(o.produksi as Record<string, unknown>[] | undefined, tahapan)
+    );
+  });
 }
 
 // ----------------------------------------------------------------
@@ -99,7 +148,10 @@ export async function fetchOrderById(id: string): Promise<JobOrder | null> {
       *,
       materials (*),
       labors (*),
-      overheads (*)
+      overheads (*),
+      payments (*),
+      produksi (*),
+      produksi_tahapan (*)
     `)
     .eq('id', id)
     .single();
@@ -109,11 +161,14 @@ export async function fetchOrderById(id: string): Promise<JobOrder | null> {
     throw new Error(`Gagal mengambil pesanan: ${error.message}`);
   }
 
+  const tahapan = (data.produksi_tahapan as Record<string, unknown>[]).map(mapProductionStage);
   return mapJobOrder(
     data,
     (data.materials as Record<string, unknown>[]).map(mapMaterial),
     (data.labors as Record<string, unknown>[]).map(mapLabor),
-    (data.overheads as Record<string, unknown>[]).map(mapOverhead)
+    (data.overheads as Record<string, unknown>[]).map(mapOverhead),
+    (data.payments as Record<string, unknown>[]).map(mapPayment),
+    mapProduction(data.produksi as Record<string, unknown>[] | undefined, tahapan)
   );
 }
 
@@ -121,7 +176,7 @@ export async function fetchOrderById(id: string): Promise<JobOrder | null> {
 // TAMBAH: buat job order baru (tanpa materials/labors/overheads)
 // ----------------------------------------------------------------
 export async function createOrder(
-  data: Omit<JobOrder, 'id' | 'materials' | 'labors' | 'overheads'>
+  data: Omit<JobOrder, 'id' | 'materials' | 'labors' | 'overheads' | 'payments' | 'produksi'>
 ): Promise<JobOrder> {
   const id = `jo-${Date.now()}`;
 
@@ -138,7 +193,7 @@ export async function createOrder(
 
   if (error) throw new Error(`Gagal membuat pesanan: ${error.message}`);
 
-  return { ...data, id, materials: [], labors: [], overheads: [] };
+  return { ...data, id, materials: [], labors: [], overheads: [], payments: [], produksi: null };
 }
 
 // ----------------------------------------------------------------
@@ -284,4 +339,126 @@ export async function updateOverhead(
 export async function deleteOverhead(id: string): Promise<void> {
   const { error } = await supabase.from('overheads').delete().eq('id', id);
   if (error) throw new Error(`Gagal menghapus overhead: ${error.message}`);
+}
+
+// ----------------------------------------------------------------
+// PAYMENTS: tambah, update, hapus
+// ----------------------------------------------------------------
+export async function addPayment(
+  jobOrderId: string,
+  payment: Omit<Payment, 'id'>
+): Promise<Payment> {
+  const id = `pay-${Date.now()}`;
+  const { error } = await supabase.from('payments').insert({
+    id,
+    job_order_id: jobOrderId,
+    tanggal:     payment.tanggal,
+    jumlah:      payment.jumlah,
+    metode:      payment.metode,
+    catatan:     payment.catatan,
+  });
+  if (error) throw new Error(`Gagal menambah pembayaran: ${error.message}`);
+  return { ...payment, id };
+}
+
+export async function updatePayment(
+  id: string,
+  data: Partial<Omit<Payment, 'id'>>
+): Promise<void> {
+  const patch: Record<string, unknown> = {};
+  if (data.tanggal !== undefined) patch.tanggal  = data.tanggal;
+  if (data.jumlah !== undefined)  patch.jumlah   = data.jumlah;
+  if (data.metode !== undefined)  patch.metode   = data.metode;
+  if (data.catatan !== undefined) patch.catatan  = data.catatan;
+
+  const { error } = await supabase.from('payments').update(patch).eq('id', id);
+  if (error) throw new Error(`Gagal mengupdate pembayaran: ${error.message}`);
+}
+
+export async function deletePayment(id: string): Promise<void> {
+  const { error } = await supabase.from('payments').delete().eq('id', id);
+  if (error) throw new Error(`Gagal menghapus pembayaran: ${error.message}`);
+}
+
+// ----------------------------------------------------------------
+// PRODUKSI: mulai produksi, update overview
+// ----------------------------------------------------------------
+export async function startProduksi(
+  jobOrderId: string,
+  data: Pick<Production, 'tanggalMulai' | 'estimasiSelesai'> & Partial<Pick<Production, 'catatan'>>
+): Promise<Production> {
+  const id = `prd-${Date.now()}`;
+  const { error } = await supabase.from('produksi').insert({
+    id,
+    job_order_id:     jobOrderId,
+    tanggal_mulai:    data.tanggalMulai,
+    estimasi_selesai: data.estimasiSelesai,
+    catatan:          data.catatan ?? '',
+  });
+  if (error) throw new Error(`Gagal memulai produksi: ${error.message}`);
+  return {
+    id,
+    tanggalMulai: data.tanggalMulai,
+    estimasiSelesai: data.estimasiSelesai,
+    tanggalSelesai: '',
+    catatan: data.catatan ?? '',
+    tahapan: [],
+  };
+}
+
+export async function updateProduksi(
+  id: string,
+  data: Partial<Pick<Production, 'tanggalMulai' | 'estimasiSelesai' | 'tanggalSelesai' | 'catatan'>>
+): Promise<void> {
+  const patch: Record<string, unknown> = {};
+  if (data.tanggalMulai    !== undefined) patch.tanggal_mulai    = data.tanggalMulai;
+  if (data.estimasiSelesai !== undefined) patch.estimasi_selesai = data.estimasiSelesai;
+  if (data.tanggalSelesai  !== undefined) patch.tanggal_selesai  = data.tanggalSelesai;
+  if (data.catatan         !== undefined) patch.catatan          = data.catatan;
+
+  const { error } = await supabase.from('produksi').update(patch).eq('id', id);
+  if (error) throw new Error(`Gagal mengupdate produksi: ${error.message}`);
+}
+
+// ----------------------------------------------------------------
+// PRODUKSI TAHAPAN: tambah, update, hapus
+// ----------------------------------------------------------------
+export async function addTahapan(
+  jobOrderId: string,
+  tahapan: Omit<ProductionStage, 'id'>
+): Promise<ProductionStage> {
+  const id = `pt-${Date.now()}`;
+  const { error } = await supabase.from('produksi_tahapan').insert({
+    id,
+    job_order_id:    jobOrderId,
+    nama_tahapan:    tahapan.namaTahapan,
+    urutan:          tahapan.urutan,
+    status:          tahapan.status,
+    tanggal_mulai:   tahapan.tanggalMulai || null,
+    tanggal_selesai: tahapan.tanggalSelesai || null,
+    catatan:         tahapan.catatan,
+  });
+  if (error) throw new Error(`Gagal menambah tahapan: ${error.message}`);
+  return { ...tahapan, id };
+}
+
+export async function updateTahapan(
+  id: string,
+  data: Partial<Omit<ProductionStage, 'id'>>
+): Promise<void> {
+  const patch: Record<string, unknown> = {};
+  if (data.namaTahapan    !== undefined) patch.nama_tahapan    = data.namaTahapan;
+  if (data.urutan        !== undefined) patch.urutan          = data.urutan;
+  if (data.status        !== undefined) patch.status          = data.status;
+  if (data.tanggalMulai  !== undefined) patch.tanggal_mulai   = data.tanggalMulai || null;
+  if (data.tanggalSelesai !== undefined) patch.tanggal_selesai = data.tanggalSelesai || null;
+  if (data.catatan       !== undefined) patch.catatan        = data.catatan;
+
+  const { error } = await supabase.from('produksi_tahapan').update(patch).eq('id', id);
+  if (error) throw new Error(`Gagal mengupdate tahapan: ${error.message}`);
+}
+
+export async function deleteTahapan(id: string): Promise<void> {
+  const { error } = await supabase.from('produksi_tahapan').delete().eq('id', id);
+  if (error) throw new Error(`Gagal menghapus tahapan: ${error.message}`);
 }

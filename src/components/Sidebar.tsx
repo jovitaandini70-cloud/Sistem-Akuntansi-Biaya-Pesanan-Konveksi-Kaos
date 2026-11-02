@@ -10,6 +10,8 @@ import {
   Settings,
   LogOut,
   ChevronRight,
+  Wallet,
+  Factory,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { PageKey } from '../types';
@@ -20,11 +22,15 @@ const iconMap: Record<string, LucideIcon> = {
   FileText,
   ReceiptText,
   BarChart3,
+  Wallet,
+  Factory,
 };
 
 const navItems: { key: PageKey; label: string; icon: string }[] = [
   { key: 'dashboard', label: 'Dashboard', icon: 'LayoutDashboard' },
   { key: 'pesanan', label: 'Data Pesanan', icon: 'ClipboardList' },
+  { key: 'pembayaran', label: 'Pembayaran', icon: 'Wallet' },
+  { key: 'produksi', label: 'Proses Produksi', icon: 'Factory' },
   { key: 'kartu-biaya', label: 'Kartu Biaya', icon: 'ReceiptText' },
   { key: 'laporan', label: 'Laporan', icon: 'BarChart3' },
 ];

@@ -14,7 +14,7 @@ export default function PesananPage({
 }: {
   orders: JobOrder[];
   onSelectOrder: (id: string) => void;
-  onAddOrder: (o: Omit<JobOrder, 'id' | 'materials' | 'labors' | 'overheads'>) => void;
+  onAddOrder: (o: Omit<JobOrder, 'id' | 'materials' | 'labors' | 'overheads' | 'payments' | 'produksi'>) => void;
   searchQuery: string;
 }) {
   const [filter, setFilter] = useState<'all' | OrderStatus>('all');

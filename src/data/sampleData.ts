@@ -26,6 +26,8 @@ export const sampleOrders: JobOrder[] = [
       { id: 'o2', nama: 'Penyusutan Mesin Sablon', biaya: 280000 },
       { id: 'o3', nama: 'Maintenance Mesin Jahit', biaya: 120000 },
     ],
+    payments: [],
+    produksi: null,
   },
   {
     id: 'jo-002',
@@ -54,6 +56,8 @@ export const sampleOrders: JobOrder[] = [
       { id: 'o3', nama: 'Maintenance Mesin Jahit', biaya: 200000 },
       { id: 'o4', nama: 'Sewa Workshop', biaya: 500000 },
     ],
+    payments: [],
+    produksi: null,
   },
   {
     id: 'jo-003',
@@ -80,6 +84,8 @@ export const sampleOrders: JobOrder[] = [
       { id: 'o2', nama: 'Penyusutan Mesin Sablon', biaya: 300000 },
       { id: 'o3', nama: 'Maintenance Mesin Jahit', biaya: 150000 },
     ],
+    payments: [],
+    produksi: null,
   },
   {
     id: 'jo-004',
@@ -103,6 +109,8 @@ export const sampleOrders: JobOrder[] = [
       { id: 'o1', nama: 'Listrik Produksi', biaya: 300000 },
       { id: 'o2', nama: 'Penyusutan Mesin Sublim', biaya: 350000 },
     ],
+    payments: [],
+    produksi: null,
   },
   {
     id: 'jo-005',
@@ -129,6 +137,8 @@ export const sampleOrders: JobOrder[] = [
       { id: 'o2', nama: 'Penyusutan Mesin Sablon', biaya: 180000 },
       { id: 'o3', nama: 'Maintenance Mesin Jahit', biaya: 80000 },
     ],
+    payments: [],
+    produksi: null,
   },
   {
     id: 'jo-006',
@@ -156,5 +166,7 @@ export const sampleOrders: JobOrder[] = [
       { id: 'o3', nama: 'Maintenance Mesin Jahit', biaya: 180000 },
       { id: 'o4', nama: 'Sewa Workshop', biaya: 500000 },
     ],
+    payments: [],
+    produksi: null,
   },
 ];

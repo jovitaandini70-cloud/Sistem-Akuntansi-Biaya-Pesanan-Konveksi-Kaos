@@ -1,4 +1,4 @@
-import type { JobOrder } from '../types';
+import type { JobOrder, PaymentStatus } from '../types';
 
 export const formatRupiah = (n: number): string =>
   'Rp ' + n.toLocaleString('id-ID');
@@ -29,6 +29,62 @@ export const totalProduksi = (o: JobOrder) =>
 
 // hargaJual adalah harga per pcs — dikalikan jumlah untuk mendapat total pendapatan
 export const totalPendapatan = (o: JobOrder) => o.hargaJual * o.jumlah;
+
+// Total tagihan = harga jual × jumlah (sama dengan total pendapatan, istilah pembayaran)
+export const totalTagihan = (o: JobOrder) => o.hargaJual * o.jumlah;
+
+// Total pembayaran yang sudah diterima
+export const totalPembayaran = (o: JobOrder) =>
+  o.payments.reduce((s, p) => s + p.jumlah, 0);
+
+// Sisa tagihan yang belum dibayar (minimal 0)
+export const sisaPembayaran = (o: JobOrder) =>
+  Math.max(0, totalTagihan(o) - totalPembayaran(o));
+
+// Persentase pembayaran (0-100)
+export const persenPembayaran = (o: JobOrder): number => {
+  const tagihan = totalTagihan(o);
+  return tagihan > 0 ? Math.min(100, Math.round((totalPembayaran(o) / tagihan) * 100)) : 0;
+};
+
+// Status pembayaran: Lunas / Sebagian / Belum Bayar
+export const statusPembayaran = (o: JobOrder): PaymentStatus => {
+  const dibayar = totalPembayaran(o);
+  if (dibayar <= 0) return 'Belum Bayar';
+  if (dibayar >= totalTagihan(o)) return 'Lunas';
+  return 'Sebagian';
+};
+
+// Progress produksi berdasarkan tahapan yang selesai (0-100)
+export const progressProduksi = (o: JobOrder): number => {
+  if (!o.produksi || o.produksi.tahapan.length === 0) return 0;
+  const selesai = o.produksi.tahapan.filter((t) => t.status === 'Selesai').length;
+  return Math.round((selesai / o.produksi.tahapan.length) * 100);
+};
+
+// Jumlah tahapan yang selesai vs total
+export const tahapanSelesai = (o: JobOrder): number =>
+  o.produksi?.tahapan.filter((t) => t.status === 'Selesai').length ?? 0;
+
+export const totalTahapan = (o: JobOrder): number =>
+  o.produksi?.tahapan.length ?? 0;
+
+// Status produksi ringkas
+export const statusProduksi = (o: JobOrder): 'Belum Mulai' | 'Dalam Proses' | 'Selesai' => {
+  if (!o.produksi) return 'Belum Mulai';
+  if (o.produksi.tanggalSelesai) return 'Selesai';
+  return 'Dalam Proses';
+};
+
+// Hari menuju estimasi selesai (bisa negatif jika terlambat, null jika belum ada)
+export const hariMenujuEstimasi = (o: JobOrder): number | null => {
+  if (!o.produksi?.estimasiSelesai) return null;
+  const estimasi = new Date(o.produksi.estimasiSelesai);
+  const sekarang = new Date();
+  estimasi.setHours(0, 0, 0, 0);
+  sekarang.setHours(0, 0, 0, 0);
+  return Math.round((estimasi.getTime() - sekarang.getTime()) / (1000 * 60 * 60 * 24));
+};
 
 export const estimasiLaba = (o: JobOrder) => totalPendapatan(o) - totalProduksi(o);
 
